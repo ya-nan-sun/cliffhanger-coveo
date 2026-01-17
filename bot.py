@@ -3,6 +3,7 @@ import random
 from game_message import *
 
 
+
 class Bot:
     def __init__(self):
         print("Initializing your super mega duper bot")
@@ -17,7 +18,7 @@ class Bot:
                 if game_message.world.ownershipGrid[x][y] == game_message.yourTeamId or nutrient_grid[x][y] == 0:
                     continue
                 distance = abs(spore.position.x - x) + abs(spore.position.y - y)
-                
+
                 if distance < min_distance and distance != 0:
                     min_distance = distance
                     min_position = (x, y)
@@ -42,7 +43,7 @@ class Bot:
         my_team: TeamInfo = game_message.world.teamInfos[game_message.yourTeamId]
         if len(my_team.spawners) == 0:
             actions.append(SporeCreateSpawnerAction(sporeId=my_team.spores[0].id))
-        elif len(my_team.spores) > 10:
+        elif len(my_team.spores) > 5:
             actions.append(SporeCreateSpawnerAction(sporeId=my_team.spores[0].id))
 
         elif len(my_team.spores) == 0:
@@ -50,16 +51,16 @@ class Bot:
                 SpawnerProduceSporeAction(spawnerId=my_team.spawners[0].id, biomass=20)
             )
             return actions
-        elif len(my_team.spores) >= 10:
+        elif len(my_team.spores) >= 5 and game_message.tick % 2 == 0:
             actions.append(
-                SpawnerProduceSporeAction(spawnerId=my_team.spawners[0].id, biomass= 50)
+                SpawnerProduceSporeAction(spawnerId=my_team.spawners[0].id, biomass= int(0.5*my_team.nutrients))
             )
         elif my_team.nutrients >= 10:
             for spawner in my_team.spawners:
                 actions.append(
-                SpawnerProduceSporeAction(spawnerId=spawner.id, biomass=20)
+                SpawnerProduceSporeAction(spawnerId=spawner.id, biomass=int(my_team.nutrients / len(my_team.spawners))
+                )
             )
-
         for spore in my_team.spores:
             actions.append(
             SporeMoveToAction(
